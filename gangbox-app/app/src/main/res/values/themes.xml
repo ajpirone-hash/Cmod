@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.GangBox" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#E65100</item>
+    </style>
+</resources>
