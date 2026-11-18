@@ -1,0 +1,17 @@
+{
+  "name": "cmod",
+  "owner": {
+    "name": "ajpirone-hash"
+  },
+  "metadata": {
+    "description": "Claude Code mods from the Cmod repo"
+  },
+  "plugins": [
+    {
+      "name": "agent-progress",
+      "source": "./agent-progress",
+      "description": "A side pane showing each subagent's live progress: status, current step, latest tool, tokens and time",
+      "version": "0.1.0"
+    }
+  ]
+}
