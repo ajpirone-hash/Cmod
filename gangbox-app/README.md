@@ -22,7 +22,7 @@ A `.csv` file named like `GangBox_Smith_Residence_2026-11-20.csv`. It opens dire
 
 GitHub builds the app automatically whenever the code changes (see the **Actions** tab, "Gang Box Android app").
 
-- **From the main branch:** open the repo's **Releases** page on the phone, download `GangBox.apk`, and tap it to install.
+- **From the main (default) branch:** open the repo's **Releases** page on the phone, download `GangBox.apk`, and tap it to install.
 - **From any other build:** open the run in the **Actions** tab, download **GangBox-apk** (a zip), unzip it, and copy `GangBox.apk` to the phone.
 
 The first time, Android will ask you to allow installing apps from your browser or file manager. That's normal for apps that aren't from the Play Store.

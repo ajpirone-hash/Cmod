@@ -45,10 +45,10 @@ jobs:
           name: GangBox-apk
           path: gangbox-app/GangBox.apk
 
-      # On the main branch, also post the APK as a GitHub Release so it can be
+      # On the repo's default branch, also post the APK as a GitHub Release so it can be
       # downloaded straight to a phone from the repo's Releases page.
       - name: Publish release
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         uses: softprops/action-gh-release@v2
         with:
           tag_name: gangbox-v1.0.${{ github.run_number }}
