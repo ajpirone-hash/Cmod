@@ -11,6 +11,17 @@ Running agents are listed first; agents started by other agents are indented und
 
 The pane opens when a session starts. Reopen it with `/agent-progress`.
 
+## Install
+
+In Claude Code, run:
+
+    /plugin install agent-progress --marketplace ajpirone-hash/Cmod
+
+On older Claude Code versions, add the marketplace first, then install:
+
+    /plugin marketplace add ajpirone-hash/Cmod
+    /plugin install agent-progress@cmod
+
 ## Install for development
 
     claude --plugin-dir ./agent-progress
