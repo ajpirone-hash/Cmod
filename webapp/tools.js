@@ -356,7 +356,84 @@ window.GANGBOX_TOOLS = [
       "Beam Trolley 2 Ton",
       "Beam Trolley 3 Ton",
       "Beam Trolley 5 Ton",
-      "Portable Gantry / A-Frame",
+      {
+        "name": "Aluminum Gantry 1 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Aluminum Gantry 2 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Aluminum Gantry 3 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Steel Gantry 2 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Steel Gantry 3 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Steel Gantry 5 Ton (adjustable height)",
+        "choose": {
+          "label": "Span",
+          "options": [
+            "8'",
+            "10'",
+            "12'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
       "Tripod Hoist Stand"
     ]
   },

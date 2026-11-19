@@ -126,7 +126,12 @@ object DefaultTools {
             "Beam Trolley 2 Ton",
             "Beam Trolley 3 Ton",
             "Beam Trolley 5 Ton",
-            "Portable Gantry / A-Frame",
+            "Aluminum Gantry 1 Ton (adjustable height)",
+            "Aluminum Gantry 2 Ton (adjustable height)",
+            "Aluminum Gantry 3 Ton (adjustable height)",
+            "Steel Gantry 2 Ton (adjustable height)",
+            "Steel Gantry 3 Ton (adjustable height)",
+            "Steel Gantry 5 Ton (adjustable height)",
             "Tripod Hoist Stand",
         ),
         "Rigging: Slings" to listOf(
