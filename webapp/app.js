@@ -10,7 +10,7 @@
   var state = load();
 
   function load() {
-    var empty = { job: { jobName: "", requestedBy: "", dateNeeded: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
+    var empty = { job: { jobName: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return empty;
@@ -98,6 +98,22 @@
     els[key].value = state.job[key] || "";
     els[key].addEventListener("input", function () { state.job[key] = els[key].value; save(); });
   });
+
+  // "Send it in": gang box or clam shell
+  var containerOpts = document.getElementById("containerOpts");
+  function showContainer() {
+    Array.prototype.forEach.call(containerOpts.querySelectorAll(".opt"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-val") === state.job.container);
+    });
+  }
+  containerOpts.addEventListener("click", function (e) {
+    var b = e.target.closest(".opt");
+    if (!b) return;
+    var v = b.getAttribute("data-val");
+    state.job.container = state.job.container === v ? "" : v;
+    save(); showContainer();
+  });
+  showContainer();
 
   // ---------- Render tool list ----------
   function render() {
@@ -304,9 +320,9 @@
   }
 
   function buildCsv(job, lines) {
-    var rows = [["Job", "Requested By", "Date Needed", "Category", "Tool", "Size / Length", "Qty", "Notes"]];
+    var rows = [["Job", "Requested By", "Date Needed", "Send In", "Category", "Tool", "Size / Length", "Qty", "Notes"]];
     lines.forEach(function (l) {
-      rows.push([job.jobName.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), l.category, l.tool, l.option, String(l.qty), l.note]);
+      rows.push([job.jobName.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), job.container || "", l.category, l.tool, l.option, String(l.qty), l.note]);
     });
     return "﻿" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n") + "\r\n";
   }
@@ -323,8 +339,12 @@
       (job.dateNeeded ? " (needed " + prettyDate(job.dateNeeded) + ")" : "");
   }
 
+  function optionText(l) {
+    return l.optionLabel.toLowerCase() === "size" ? l.option : l.option + " " + l.optionLabel.toLowerCase();
+  }
+
   function lineText(l) {
-    return l.qty + " x " + l.tool + (l.option ? ", " + l.option + " " + l.optionLabel.toLowerCase() : "") + (l.note ? " (" + l.note + ")" : "");
+    return l.qty + " x " + l.tool + (l.option ? ", " + optionText(l) : "") + (l.note ? " (" + l.note + ")" : "");
   }
 
   function plainText(job, lines) {
@@ -332,6 +352,7 @@
     if (job.jobName.trim()) t += "Job: " + job.jobName.trim() + "\n";
     if (job.requestedBy.trim()) t += "Requested by: " + job.requestedBy.trim() + "\n";
     if (job.dateNeeded) t += "Needed: " + prettyDate(job.dateNeeded) + "\n";
+    if (job.container) t += "Send in: " + job.container + "\n";
     t += "\n";
     lines.forEach(function (l) { t += "- " + lineText(l) + "\n"; });
     return t;
@@ -349,11 +370,12 @@
     lines.forEach(function (l) {
       if (l.needsOption && !l.option) warn += '<p class="warn">⚠ ' + esc(l.tool) + ": pick the " + esc(l.optionLabel.toLowerCase()) + ".</p>";
     });
+    if (!job.container) warn += '<p class="warn">⚠ Pick gang box or clam shell at the top.</p>';
     if (!job.requestedBy.trim()) warn += '<p class="warn">⚠ Add your name so the warehouse can call you.</p>';
     var list = "<ul>" + lines.map(function (l) {
-      return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.option ? ", <b>" + esc(l.option) + "</b> " + esc(l.optionLabel.toLowerCase()) : "") + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
+      return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.option ? ", <b>" + esc(optionText(l)) + "</b>" : "") + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
     }).join("") + "</ul>";
-    var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + "</p>" : "";
+    var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + (job.container ? "<br><b>Send in:</b> " + esc(job.container) : "") + "</p>" : "";
 
     var actions = [];
     var note;
@@ -385,6 +407,7 @@
     form.append("Job", job.jobName.trim() || "(no job name)");
     form.append("Requested by", job.requestedBy.trim() || "(no name)");
     form.append("Date needed", prettyDate(job.dateNeeded) || "(not given)");
+    form.append("Send in", job.container || "(not picked)");
     form.append("Tools", lines.map(function (l) {
       return lineText(l);
     }).join("\n"));
@@ -462,7 +485,7 @@
 
   function clearChecks() {
     state.picks = {};
-    state.job.jobName = ""; state.job.dateNeeded = "";
+    state.job.jobName = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
     els.jobName.value = ""; els.dateNeeded.value = "";
     save(); render();
   }

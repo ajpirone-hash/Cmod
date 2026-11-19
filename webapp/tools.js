@@ -93,6 +93,41 @@ window.GANGBOX_TOOLS = [
     ]
   },
   {
+    "name": "Gas Cylinders",
+    "tools": [
+      {
+        "name": "Acetylene Bottle",
+        "choose": {
+          "label": "Size",
+          "options": [
+            "MC (10 cu ft)",
+            "B (40 cu ft)",
+            "#3 (75 cu ft)",
+            "#4 (145 cu ft)",
+            "#5 (300 cu ft)"
+          ]
+        }
+      },
+      {
+        "name": "Oxygen Bottle",
+        "choose": {
+          "label": "Size",
+          "options": [
+            "R (20 cu ft)",
+            "D (40 cu ft)",
+            "80 cu ft",
+            "125 cu ft",
+            "250 cu ft"
+          ]
+        }
+      },
+      "Torch Regulators (Oxy/Acetylene)",
+      "Bottle Cart",
+      "Bottle Wrench",
+      "Cylinder Caps"
+    ]
+  },
+  {
     "name": "Ladders & Access",
     "tools": [
       "6' Step Ladder",

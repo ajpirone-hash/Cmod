@@ -81,6 +81,14 @@ object DefaultTools {
             "Marking Paint",
             "Sharpies",
         ),
+        "Gas Cylinders" to listOf(
+            "Acetylene Bottle",
+            "Oxygen Bottle",
+            "Torch Regulators (Oxy/Acetylene)",
+            "Bottle Cart",
+            "Bottle Wrench",
+            "Cylinder Caps",
+        ),
         "Ladders & Access" to listOf(
             "6' Step Ladder",
             "8' Step Ladder",
