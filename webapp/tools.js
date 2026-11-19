@@ -101,6 +101,29 @@ window.GANGBOX_TOOLS = [
     ]
   },
   {
+    "name": "Rigging",
+    "tools": [
+      "Chain Fall 1 Ton",
+      "Chain Fall 2 Ton",
+      "Lever Hoist (Come-Along)",
+      "Beam Clamp",
+      "Beam Trolley",
+      "Nylon Slings",
+      "Wire Rope Slings",
+      "Chain Sling",
+      "Shackles",
+      "Eye Bolts",
+      "Snatch Block",
+      "Rope / Tag Lines",
+      "Chain & Binders",
+      "Pipe Rollers",
+      "Machinery Skates",
+      "Pry Bar / J-Bar",
+      "Material Lift (Genie)",
+      "Pipe Jack Stands"
+    ]
+  },
+  {
     "name": "Safety",
     "tools": [
       "Hard Hats",

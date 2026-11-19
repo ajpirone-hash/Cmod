@@ -2,7 +2,13 @@
 window.GANGBOX_CONFIG = {
   // Company name shown at the top of the page and in the email subject.
   company: "",
-  // Warehouse email address. When set, the "Email" option fills it in.
+  // Where "Send" emails the list (straight to this inbox, no mail app needed).
+  // Uses the free FormSubmit.co service. The first list sent triggers a one-time
+  // "confirm" email to this address. After confirming, you can swap the address
+  // for the random code FormSubmit gives you, to keep the address private.
+  // Leave blank to use the phone's share menu instead.
+  sendTo: "apirone@actioncontractors.com",
+  // Warehouse email address (only used when sendTo is blank). When set, the "Email" option fills it in.
   // You can also add ?to=name@company.com to the link you send the crews.
   warehouseEmail: "",
 };
