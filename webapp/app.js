@@ -10,7 +10,7 @@
   var state = load();
 
   function load() {
-    var empty = { job: { jobName: "", requestedBy: "", dateNeeded: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
+    var empty = { job: { jobName: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return empty;
@@ -50,7 +50,10 @@
 
   function categories() {
     var cats = STARTER.map(function (c) {
-      return { name: c.name, tools: c.tools.map(function (t) { return { id: toolId(c.name, t), name: t, category: c.name, custom: false }; }) };
+      return { name: c.name, tools: c.tools.map(function (t) {
+        var name = typeof t === "string" ? t : t.name;
+        return { id: toolId(c.name, name), name: name, category: c.name, custom: false, choose: typeof t === "string" ? null : t.choose || null };
+      }) };
     });
     state.custom.forEach(function (t) {
       var cat = cats.filter(function (c) { return c.name === t.category; })[0];
@@ -96,6 +99,22 @@
     els[key].addEventListener("input", function () { state.job[key] = els[key].value; save(); });
   });
 
+  // "Send it in": gang box or clam shell
+  var containerOpts = document.getElementById("containerOpts");
+  function showContainer() {
+    Array.prototype.forEach.call(containerOpts.querySelectorAll(".opt"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-val") === state.job.container);
+    });
+  }
+  containerOpts.addEventListener("click", function (e) {
+    var b = e.target.closest(".opt");
+    if (!b) return;
+    var v = b.getAttribute("data-val");
+    state.job.container = state.job.container === v ? "" : v;
+    save(); showContainer();
+  });
+  showContainer();
+
   // ---------- Render tool list ----------
   function render() {
     var q = els.search.value.trim().toLowerCase();
@@ -130,9 +149,19 @@
       '<button type="button" data-action="minus" aria-label="One less"' + (p && p.qty <= 1 ? " disabled" : "") + ">−</button>" +
       '<span class="qty-num">' + (p ? p.qty : 1) + "</span>" +
       '<button type="button" data-action="plus" aria-label="One more">+</button></div>' +
+      (t.choose ? chooseHtml(t, p) : "") +
       '<input class="note" type="text" data-action="note" placeholder="Note (size, brand...) optional" value="' + esc(p ? p.note : "") + '">' +
       (t.custom ? '<button type="button" class="remove-tool" data-action="remove">Remove this tool from the list</button>' : "") +
       "</div></div>";
+  }
+
+  // Big buttons for a required choice, like a chain fall's lift length.
+  function chooseHtml(t, p) {
+    var cur = p && p.opt;
+    return '<div class="choose"><div class="choose-label">' + esc(t.choose.label) + ':</div><div class="choose-opts">' +
+      t.choose.options.map(function (o) {
+        return '<button type="button" class="opt' + (cur === o ? " on" : "") + '" data-action="opt" data-val="' + esc(o) + '">' + esc(o) + "</button>";
+      }).join("") + "</div></div>";
   }
 
   function updateCount() {
@@ -166,6 +195,9 @@
       state.picks[id].qty = Math.min(999, state.picks[id].qty + 1);
     } else if (action === "minus" && state.picks[id]) {
       state.picks[id].qty = Math.max(1, state.picks[id].qty - 1);
+    } else if (action === "opt" && state.picks[id]) {
+      var val = btn.getAttribute("data-val");
+      state.picks[id].opt = state.picks[id].opt === val ? "" : val;
     } else if (action === "remove") {
       var tool = state.custom.filter(function (t) { return t.id === id; })[0];
       confirmBox("Remove " + (tool ? tool.name : "this tool") + "?", "It comes off the list on this phone.", "Remove", function () {
@@ -276,7 +308,7 @@
   function orderLines() {
     return pickedTools().map(function (t) {
       var p = state.picks[t.id];
-      return { category: t.category, tool: t.name, qty: p.qty, note: (p.note || "").trim() };
+      return { category: t.category, tool: t.name, option: p.opt || "", optionLabel: t.choose ? t.choose.label : "", needsOption: !!t.choose, qty: p.qty, note: (p.note || "").trim() };
     });
   }
 
@@ -288,9 +320,9 @@
   }
 
   function buildCsv(job, lines) {
-    var rows = [["Job", "Requested By", "Date Needed", "Category", "Tool", "Qty", "Notes"]];
+    var rows = [["Job", "Requested By", "Date Needed", "Send In", "Category", "Tool", "Size / Length", "Qty", "Notes"]];
     lines.forEach(function (l) {
-      rows.push([job.jobName.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), l.category, l.tool, String(l.qty), l.note]);
+      rows.push([job.jobName.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), job.container || "", l.category, l.tool, l.option, String(l.qty), l.note]);
     });
     return "﻿" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n") + "\r\n";
   }
@@ -307,13 +339,22 @@
       (job.dateNeeded ? " (needed " + prettyDate(job.dateNeeded) + ")" : "");
   }
 
+  function optionText(l) {
+    return l.optionLabel.toLowerCase() === "size" ? l.option : l.option + " " + l.optionLabel.toLowerCase();
+  }
+
+  function lineText(l) {
+    return l.qty + " x " + l.tool + (l.option ? ", " + optionText(l) : "") + (l.note ? " (" + l.note + ")" : "");
+  }
+
   function plainText(job, lines) {
     var t = "Gang box tool list (" + lines.length + (lines.length === 1 ? " item" : " items") + ")\n\n";
     if (job.jobName.trim()) t += "Job: " + job.jobName.trim() + "\n";
     if (job.requestedBy.trim()) t += "Requested by: " + job.requestedBy.trim() + "\n";
     if (job.dateNeeded) t += "Needed: " + prettyDate(job.dateNeeded) + "\n";
+    if (job.container) t += "Send in: " + job.container + "\n";
     t += "\n";
-    lines.forEach(function (l) { t += "- " + l.qty + " x " + l.tool + (l.note ? " (" + l.note + ")" : "") + "\n"; });
+    lines.forEach(function (l) { t += "- " + lineText(l) + "\n"; });
     return t;
   }
 
@@ -326,11 +367,15 @@
     var lines = orderLines();
     var warn = "";
     if (!job.jobName.trim()) warn += '<p class="warn">⚠ No job name. The warehouse won\'t know where this goes.</p>';
+    lines.forEach(function (l) {
+      if (l.needsOption && !l.option) warn += '<p class="warn">⚠ ' + esc(l.tool) + ": pick the " + esc(l.optionLabel.toLowerCase()) + ".</p>";
+    });
+    if (!job.container) warn += '<p class="warn">⚠ Pick gang box or clam shell at the top.</p>';
     if (!job.requestedBy.trim()) warn += '<p class="warn">⚠ Add your name so the warehouse can call you.</p>';
     var list = "<ul>" + lines.map(function (l) {
-      return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
+      return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.option ? ", <b>" + esc(optionText(l)) + "</b>" : "") + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
     }).join("") + "</ul>";
-    var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + "</p>" : "";
+    var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + (job.container ? "<br><b>Send in:</b> " + esc(job.container) : "") + "</p>" : "";
 
     var actions = [];
     var note;
@@ -362,8 +407,9 @@
     form.append("Job", job.jobName.trim() || "(no job name)");
     form.append("Requested by", job.requestedBy.trim() || "(no name)");
     form.append("Date needed", prettyDate(job.dateNeeded) || "(not given)");
+    form.append("Send in", job.container || "(not picked)");
     form.append("Tools", lines.map(function (l) {
-      return l.qty + " x " + l.tool + (l.note ? " (" + l.note + ")" : "");
+      return lineText(l);
     }).join("\n"));
     form.append("Spreadsheet", makeFile(job, lines));
 
@@ -439,7 +485,7 @@
 
   function clearChecks() {
     state.picks = {};
-    state.job.jobName = ""; state.job.dateNeeded = "";
+    state.job.jobName = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
     els.jobName.value = ""; els.dateNeeded.value = "";
     save(); render();
   }
