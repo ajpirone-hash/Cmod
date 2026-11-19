@@ -333,19 +333,66 @@
     var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + "</p>" : "";
 
     var actions = [];
-    if (canShareFile()) {
+    var note;
+    if (directEmailOn()) {
+      actions.push({ label: "Send it", style: "btn-primary", onClick: function () { sendDirect(job, lines); } });
+      note = "Tap Send it and the list goes straight to the office by email, with a spreadsheet attached.";
+    } else if (canShareFile()) {
       actions.push({ label: "Send it", style: "btn-primary", onClick: function () { shareFile(job, lines); } });
       actions.push({ label: "Email the list as text instead", style: "btn-outline", onClick: function () { emailFallback(job, lines); } });
+      note = "Tap Send it, then pick Mail, Messages, or whatever you use to reach the warehouse. The list goes as a spreadsheet file.";
     } else {
       actions.push({ label: "Send by email", style: "btn-primary", onClick: function () { emailFallback(job, lines); } });
+      note = "This opens an email with the list. A spreadsheet copy is also saved on this device.";
     }
     actions.push({ label: "Go back and change it", style: "btn-plain", onClick: closeModal });
 
-    openModal("Check your list (" + lines.length + ")", warn + head + list +
-      '<p class="small">' + (canShareFile()
-        ? "Tap Send it, then pick Mail, Messages, or whatever you use to reach the warehouse. The list goes as a spreadsheet file."
-        : "This opens an email with the list. A spreadsheet copy is also saved on this device.") + "</p>", actions);
+    openModal("Check your list (" + lines.length + ")", warn + head + list + '<p class="small">' + note + "</p>", actions);
   });
+
+  // ---------- Sending straight to the office inbox (FormSubmit.co) ----------
+  function directEmailOn() { return !!(CONFIG.sendTo || "").trim(); }
+
+  function sendDirect(job, lines) {
+    openModal("Sending...", "<p>Sending your list. Keep this page open for a moment.</p>", []);
+    var form = new FormData();
+    form.append("_subject", subjectLine(job));
+    form.append("_template", "table");
+    form.append("_captcha", "false");
+    form.append("Job", job.jobName.trim() || "(no job name)");
+    form.append("Requested by", job.requestedBy.trim() || "(no name)");
+    form.append("Date needed", prettyDate(job.dateNeeded) || "(not given)");
+    form.append("Tools", lines.map(function (l) {
+      return l.qty + " x " + l.tool + (l.note ? " (" + l.note + ")" : "");
+    }).join("\n"));
+    form.append("Spreadsheet", makeFile(job, lines));
+
+    var controller = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 30000);
+    fetch("https://formsubmit.co/ajax/" + encodeURIComponent(CONFIG.sendTo.trim()), {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: form,
+      signal: controller ? controller.signal : undefined,
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok || String(data.success) !== "true") throw new Error(data.message || ("HTTP " + res.status));
+      });
+    }).then(function () {
+      clearTimeout(timer);
+      openModal("Sent! ✓", "<p>The office has your list. You can clear it now and start fresh for the next job.</p>", [
+        { label: "Clear the list", style: "btn-primary", onClick: function () { clearChecks(); closeModal(); toast("List cleared. Ready for the next job."); } },
+        { label: "Keep my list", style: "btn-plain", onClick: closeModal },
+      ]);
+    }).catch(function () {
+      clearTimeout(timer);
+      var actions = [{ label: "Try again", style: "btn-primary", onClick: function () { sendDirect(job, lines); } }];
+      if (canShareFile()) actions.push({ label: "Send it another way", style: "btn-outline", onClick: function () { shareFile(job, lines); } });
+      actions.push({ label: "Email it from my phone instead", style: "btn-outline", onClick: function () { emailFallback(job, lines); } });
+      actions.push({ label: "Close", style: "btn-plain", onClick: closeModal });
+      openModal("Didn't send", "<p class=\"warn\">The list didn't go through. You might not have signal right now.</p><p>Your list is saved. Try again in a minute, or send it another way.</p>", actions);
+    });
+  }
 
   function makeFile(job, lines) {
     return new File([buildCsv(job, lines)], fileName(job), { type: "text/csv" });
