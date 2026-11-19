@@ -101,26 +101,98 @@ window.GANGBOX_TOOLS = [
     ]
   },
   {
-    "name": "Rigging",
+    "name": "Rigging: Hoists & Pullers",
     "tools": [
+      "Chain Fall 1/2 Ton",
       "Chain Fall 1 Ton",
       "Chain Fall 2 Ton",
-      "Lever Hoist (Come-Along)",
-      "Beam Clamp",
-      "Beam Trolley",
-      "Nylon Slings",
-      "Wire Rope Slings",
-      "Chain Sling",
-      "Shackles",
-      "Eye Bolts",
-      "Snatch Block",
-      "Rope / Tag Lines",
-      "Chain & Binders",
+      "Chain Fall 3 Ton",
+      "Chain Fall 5 Ton",
+      "Lever Hoist (Come-Along) 3/4 Ton",
+      "Lever Hoist 1-1/2 Ton",
+      "Lever Hoist 3 Ton",
+      "Cable Come-Along 2 Ton",
+      "Electric Chain Hoist",
+      "Beam Clamp 1 Ton",
+      "Beam Clamp 2 Ton",
+      "Beam Clamp 5 Ton",
+      "Beam Trolley 1 Ton",
+      "Beam Trolley 2 Ton",
+      "Portable Gantry / A-Frame",
+      "Tripod Hoist Stand"
+    ]
+  },
+  {
+    "name": "Rigging: Slings",
+    "tools": [
+      "Nylon Sling 1\" x 4'",
+      "Nylon Sling 1\" x 6'",
+      "Nylon Sling 2\" x 6'",
+      "Nylon Sling 2\" x 10'",
+      "Nylon Sling 3\" x 10'",
+      "Round Sling 4'",
+      "Round Sling 8'",
+      "Wire Rope Sling 3/8\" x 6'",
+      "Wire Rope Sling 1/2\" x 10'",
+      "Chain Sling 3/8\" x 6'",
+      "Chain Sling 1/2\" x 10'",
+      "Sling Wear Pads / Protectors"
+    ]
+  },
+  {
+    "name": "Rigging: Hardware",
+    "tools": [
+      "Shackle 3/8\"",
+      "Shackle 1/2\"",
+      "Shackle 5/8\"",
+      "Shackle 3/4\"",
+      "Eye Bolt 1/2\"",
+      "Eye Bolt 5/8\"",
+      "Eye Bolt 3/4\"",
+      "Swivel Hoist Ring",
+      "Turnbuckle",
+      "Wire Rope Clips",
+      "Grab Hooks",
+      "Snatch Block 2 Ton",
+      "Snatch Block 4 Ton",
+      "Spreader Bar"
+    ]
+  },
+  {
+    "name": "Rigging: Rope & Tie-Down",
+    "tools": [
+      "Tag Lines",
+      "Rope 1/2\" x 100'",
+      "Ratchet Straps",
+      "Chain 3/8\" x 20'",
+      "Chain Binders"
+    ]
+  },
+  {
+    "name": "Rigging: Moving & Jacking",
+    "tools": [
       "Pipe Rollers",
       "Machinery Skates",
+      "Pallet Jack",
+      "Pipe Dolly / Pipe Cart",
+      "Appliance Dolly",
+      "Bottle Jack 5 Ton",
+      "Bottle Jack 12 Ton",
+      "Toe Jack",
       "Pry Bar / J-Bar",
+      "Cribbing / Blocking",
+      "Pipe Jack Stand (Roller Head)",
+      "Pipe Jack Stand (V-Head)"
+    ]
+  },
+  {
+    "name": "Rigging: Lifts & Safety",
+    "tools": [
       "Material Lift (Genie)",
-      "Pipe Jack Stands"
+      "Duct / Pipe Lift",
+      "Rigging Gloves",
+      "Rigging Inspection Tags",
+      "Barricade Tape / Cones"
     ]
   },
   {

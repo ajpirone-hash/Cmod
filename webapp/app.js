@@ -504,5 +504,13 @@
     window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   }
 
+  // Drop checks for tools that are no longer on the list (e.g. after a list update).
+  (function prunePicks() {
+    var ids = {};
+    allTools().forEach(function (t) { ids[t.id] = true; });
+    Object.keys(state.picks).forEach(function (id) { if (!ids[id]) delete state.picks[id]; });
+    save();
+  })();
+
   render();
 })();
