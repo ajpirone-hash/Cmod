@@ -97,7 +97,7 @@ main { max-width: 640px; margin: 0 auto; padding: 12px; }
 .tool-extra { display: none; padding: 0 12px 12px 58px; }
 .tool.on .tool-extra { display: block; }
 .qty { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.qty-label { font-weight: 600; margin-right: 4px; }
+.qty-label { font-weight: 600; margin-right: 4px; white-space: nowrap; }
 .qty button {
   width: 52px; height: 52px; border-radius: 12px;
   border: 2px solid var(--orange); background: #fff; color: var(--orange);
@@ -173,3 +173,14 @@ main { max-width: 640px; margin: 0 auto; padding: 12px; }
   background: #263238; color: #fff; padding: 12px 18px; border-radius: 12px;
   max-width: 90vw; text-align: center;
 }
+
+/* Size / length choices (e.g. chain fall lift) */
+.choose { margin-bottom: 10px; }
+.choose-label { font-weight: 600; margin-bottom: 6px; }
+.choose-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt {
+  min-width: 64px; min-height: 48px; padding: 6px 12px;
+  border: 2px solid var(--orange); border-radius: 10px;
+  background: #fff; color: var(--orange); font-size: 18px; font-weight: 700;
+}
+.opt.on { background: var(--orange); color: #fff; }

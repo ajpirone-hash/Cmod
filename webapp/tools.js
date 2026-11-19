@@ -1,5 +1,7 @@
 // Starter tool list. Edit names here to change what the crews see.
 // (Same list as the Android app.)
+// A tool can also be {"name": ..., "choose": {"label": ..., "options": [...]}}
+// to make the crew pick a size or length when they check it.
 window.GANGBOX_TOOLS = [
   {
     "name": "Power Tools",
@@ -103,21 +105,222 @@ window.GANGBOX_TOOLS = [
   {
     "name": "Rigging: Hoists & Pullers",
     "tools": [
-      "Chain Fall 1/2 Ton",
-      "Chain Fall 1 Ton",
-      "Chain Fall 2 Ton",
-      "Chain Fall 3 Ton",
-      "Chain Fall 5 Ton",
-      "Lever Hoist (Come-Along) 3/4 Ton",
-      "Lever Hoist 1-1/2 Ton",
-      "Lever Hoist 3 Ton",
+      {
+        "name": "Chain Fall 1/4 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 1/2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 1 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 1-1/2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 3 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Chain Fall 5 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 1/4 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 1/2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 3/4 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 1 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 1-1/2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 3 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      {
+        "name": "Lever Hoist (Come-Along) 6 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "5'",
+            "10'",
+            "15'",
+            "20'"
+          ]
+        }
+      },
+      "Cable Come-Along 1 Ton",
       "Cable Come-Along 2 Ton",
-      "Electric Chain Hoist",
+      {
+        "name": "Electric Chain Hoist 1/2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Electric Chain Hoist 1 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      {
+        "name": "Electric Chain Hoist 2 Ton",
+        "choose": {
+          "label": "Lift length",
+          "options": [
+            "10'",
+            "15'",
+            "20'",
+            "30'"
+          ]
+        }
+      },
+      "Beam Clamp 1/2 Ton",
       "Beam Clamp 1 Ton",
       "Beam Clamp 2 Ton",
+      "Beam Clamp 3 Ton",
       "Beam Clamp 5 Ton",
+      "Beam Trolley 1/2 Ton",
       "Beam Trolley 1 Ton",
       "Beam Trolley 2 Ton",
+      "Beam Trolley 3 Ton",
+      "Beam Trolley 5 Ton",
       "Portable Gantry / A-Frame",
       "Tripod Hoist Stand"
     ]
