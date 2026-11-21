@@ -1,7 +1,7 @@
 // Settings for the Gang Box web app.
 window.GANGBOX_CONFIG = {
   // Company name shown at the top of the page and in the email subject.
-  company: "",
+  company: "Action Electrical & Mechanical",
   // Where "Send" emails the list (straight to this inbox, no mail app needed).
   // Uses the free FormSubmit.co service. The first list sent triggers a one-time
   // "confirm" email to this address. After confirming, you can swap the address

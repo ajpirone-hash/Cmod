@@ -83,8 +83,8 @@
   };
 
   if (CONFIG.company) {
-    els.title.textContent = CONFIG.company + " Gang Box";
-    document.title = els.title.textContent;
+    document.getElementById("brandName").textContent = CONFIG.company;
+    document.title = CONFIG.company + " Gang Box List";
   }
 
   function esc(s) {

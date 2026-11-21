@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Gang Box List</title>
-  <meta name="theme-color" content="#E65100">
+  <meta name="theme-color" content="#0A2647">
   <meta name="description" content="Check off tools for the gang box and send the list to the warehouse.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
@@ -13,13 +13,23 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gang Box">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
-    <h1 id="title">Gang Box List</h1>
-    <button id="menuBtn" class="topbar-btn" type="button" aria-label="More options">⋮</button>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">AE</div>
+      <div class="brand-name">
+        <span id="brandName">Action Electrical &amp; Mechanical</span>
+        <h1 id="title">Gang Box List</h1>
+      </div>
+      <button id="menuBtn" class="topbar-btn" type="button" aria-label="More options">⋮</button>
+    </div>
   </header>
+  <div class="stripe" aria-hidden="true"></div>
 
   <main id="main">
     <div id="installTip" class="tip" hidden>
@@ -31,7 +41,7 @@
     </div>
 
     <section class="card" aria-labelledby="jobHeading">
-      <h2 id="jobHeading">1. Job info</h2>
+      <h2 id="jobHeading"><span class="step">1</span>Job info</h2>
       <label class="field">
         <span>Job name or address</span>
         <input id="jobName" type="text" autocomplete="off" autocapitalize="words" placeholder="Example: 123 Main St">
@@ -54,7 +64,7 @@
     </section>
 
     <section class="card" aria-labelledby="toolsHeading">
-      <h2 id="toolsHeading">2. Tap the tools you need</h2>
+      <h2 id="toolsHeading"><span class="step">2</span>Tap the tools you need</h2>
       <div class="search">
         <input id="search" type="search" placeholder="🔍 Search tools" autocomplete="off">
       </div>
@@ -67,7 +77,7 @@
 
   <footer class="sendbar">
     <div id="countText" class="count">No tools picked yet</div>
-    <button id="sendBtn" class="btn btn-primary btn-send" type="button" disabled>3. Send to warehouse</button>
+    <button id="sendBtn" class="btn btn-primary btn-send" type="button" disabled><span class="step step-light">3</span>Send to warehouse</button>
   </footer>
 
   <!-- Pop-up windows -->
