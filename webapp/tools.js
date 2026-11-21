@@ -83,6 +83,23 @@ window.GANGBOX_TOOLS = [
     ]
   },
   {
+    "name": "Digging",
+    "tools": [
+      "Round Point Shovel",
+      "Square Point Shovel",
+      "Trenching Shovel",
+      "Drain Spade",
+      "Pick / Mattock",
+      "Digging Bar",
+      "Post Hole Digger",
+      "Garden Rake",
+      "Hoe",
+      "Hand Trowel",
+      "Wheelbarrow",
+      "5-Gallon Buckets"
+    ]
+  },
+  {
     "name": "Layout & Measuring",
     "tools": [
       "Laser Level",
