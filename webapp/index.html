@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
   <header class="topbar">
@@ -63,12 +63,17 @@
         <input id="dateNeeded" type="date">
       </label>
       <div class="field">
-        <span>Send it in</span>
+        <span>Send it in (pick one or both)</span>
         <div class="choose-opts" id="containerOpts">
           <button type="button" class="opt opt-big" data-val="Gang box">Gang box</button>
           <button type="button" class="opt opt-big" data-val="Clam shell">Clam shell</button>
         </div>
       </div>
+      <label class="field" id="materialField" hidden>
+        <span>Material for the clam shell</span>
+        <textarea id="material" rows="5" autocapitalize="sentences" placeholder="One item per line. Example:&#10;10 sticks 3/4&quot; EMT&#10;2 boxes 1/2&quot; copper 90s"></textarea>
+        <small class="hint">One item per line. It goes on the same list as the tools.</small>
+      </label>
     </section>
 
     <section class="card" aria-labelledby="toolsHeading">
@@ -99,8 +104,8 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script src="config.js?v=10"></script>
-  <script src="tools.js?v=10"></script>
-  <script src="app.js?v=10"></script>
+  <script src="config.js?v=11"></script>
+  <script src="tools.js?v=11"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
