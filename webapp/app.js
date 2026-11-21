@@ -10,7 +10,7 @@
   var state = load();
 
   function load() {
-    var empty = { job: { jobNumber: "", jobName: "", jobAddress: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
+    var empty = { job: { jobNumber: "", jobName: "", jobAddress: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "", link: null };
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return empty;
@@ -22,6 +22,7 @@
         open: s.open || {},
         tipDismissed: !!s.tipDismissed,
         warehouseEmail: s.warehouseEmail || "",
+        link: s.link && s.link.t ? s.link : null,
       };
     } catch (e) {
       return empty;
@@ -40,6 +41,28 @@
       save();
     }
   })();
+
+  // A link made in Action Project PRO looks like .../?t=CODE&job=SV26-1763&name=...&addr=...
+  // It fills in the job and sends the finished list straight into that job too.
+  (function readJobLink() {
+    var q = new URLSearchParams(location.search);
+    var t = (q.get("t") || "").trim();
+    if (!/^[A-Za-z0-9]{16,64}$/.test(t)) return;
+    var job = (q.get("job") || "").trim().slice(0, 60), name = (q.get("name") || "").trim().slice(0, 120);
+    var addr = (q.get("addr") || "").trim().slice(0, 200), by = (q.get("by") || "").trim().slice(0, 80), need = (q.get("need") || "").trim();
+    var fresh = !state.link || state.link.t !== t;
+    state.link = { t: t, job: job, name: name };
+    state.job.jobNumber = job;
+    state.job.jobName = name;
+    if (fresh || !state.job.jobAddress) state.job.jobAddress = addr;
+    if (by && !state.job.requestedBy) state.job.requestedBy = by;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(need) && (fresh || !state.job.dateNeeded)) state.job.dateNeeded = need;
+    save();
+    // Tidy the address bar so a refresh or home-screen save doesn't keep re-applying it.
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* ignore */ }
+  })();
+
+  function linked() { return !!(state.link && state.link.t && CONFIG.jobsApi && CONFIG.jobsApi.projectId); }
 
   function warehouseEmail() {
     return state.warehouseEmail || CONFIG.warehouseEmail || "";
@@ -98,6 +121,18 @@
     els[key].value = state.job[key] || "";
     els[key].addEventListener("input", function () { state.job[key] = els[key].value; save(); });
   });
+
+  function showLink() {
+    var box = document.getElementById("jobLink");
+    var on = linked();
+    box.hidden = !on;
+    els.jobNumber.readOnly = on; els.jobName.readOnly = on;
+    if (on) {
+      var label = [state.link.job, state.link.name].filter(Boolean).join(" ");
+      box.innerHTML = "<b>📋 This list is for " + esc(label || "your job") + ".</b><br>When you send it, it goes straight to the office and into this job.";
+    }
+  }
+  showLink();
 
   // "Send it in": gang box or clam shell
   var containerOpts = document.getElementById("containerOpts");
@@ -390,7 +425,7 @@
 
     var actions = [];
     var note;
-    if (directEmailOn()) {
+    if (directEmailOn() || linked()) {
       actions.push({ label: "Send it", style: "btn-primary", onClick: function () { sendDirect(job, lines); } });
       note = "Tap Send it and the list goes straight to the office by email, with a spreadsheet attached.";
     } else if (canShareFile()) {
@@ -411,6 +446,39 @@
 
   function sendDirect(job, lines) {
     openModal("Sending...", "<p>Sending your list. Keep this page open for a moment.</p>", []);
+    var jobs = [];
+    if (directEmailOn()) jobs.push(emailOffice(job, lines));
+    if (linked()) jobs.push(sendToJob(job, lines));
+    settle(jobs).then(function (res) {
+      var ok = res.filter(function (r) { return r.ok; }).length;
+      if (!ok) throw new Error("not sent");
+      openModal("Sent! ✓", "<p>The office has your list. You can clear it now and start fresh for the next job.</p>", [
+        { label: "Clear the list", style: "btn-primary", onClick: function () { clearChecks(); closeModal(); toast("List cleared. Ready for the next job."); } },
+        { label: "Keep my list", style: "btn-plain", onClick: closeModal },
+      ]);
+    }).catch(function () {
+      var actions = [{ label: "Try again", style: "btn-primary", onClick: function () { sendDirect(job, lines); } }];
+      if (canShareFile()) actions.push({ label: "Send it another way", style: "btn-outline", onClick: function () { shareFile(job, lines); } });
+      actions.push({ label: "Email it from my phone instead", style: "btn-outline", onClick: function () { emailFallback(job, lines); } });
+      actions.push({ label: "Close", style: "btn-plain", onClick: closeModal });
+      openModal("Didn't send", "<p class=\"warn\">The list didn't go through. You might not have signal right now.</p><p>Your list is saved. Try again in a minute, or send it another way.</p>", actions);
+    });
+  }
+
+  // Like Promise.allSettled, for older phones.
+  function settle(list) {
+    return Promise.all(list.map(function (p) {
+      return p.then(function () { return { ok: true }; }, function (e) { return { ok: false, err: e }; });
+    }));
+  }
+
+  function withTimeout(ms) {
+    var controller = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, ms);
+    return { signal: controller ? controller.signal : undefined, done: function () { clearTimeout(timer); } };
+  }
+
+  function emailOffice(job, lines) {
     var form = new FormData();
     form.append("_subject", subjectLine(job));
     form.append("_template", "table");
@@ -426,31 +494,63 @@
     }).join("\n"));
     form.append("Spreadsheet", makeFile(job, lines));
 
-    var controller = window.AbortController ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 30000);
-    fetch("https://formsubmit.co/ajax/" + encodeURIComponent(CONFIG.sendTo.trim()), {
+    var to = withTimeout(30000);
+    return fetch("https://formsubmit.co/ajax/" + encodeURIComponent(CONFIG.sendTo.trim()), {
       method: "POST",
       headers: { Accept: "application/json" },
       body: form,
-      signal: controller ? controller.signal : undefined,
+      signal: to.signal,
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
+        to.done();
         if (!res.ok || String(data.success) !== "true") throw new Error(data.message || ("HTTP " + res.status));
       });
-    }).then(function () {
-      clearTimeout(timer);
-      openModal("Sent! ✓", "<p>The office has your list. You can clear it now and start fresh for the next job.</p>", [
-        { label: "Clear the list", style: "btn-primary", onClick: function () { clearChecks(); closeModal(); toast("List cleared. Ready for the next job."); } },
-        { label: "Keep my list", style: "btn-plain", onClick: closeModal },
-      ]);
-    }).catch(function () {
-      clearTimeout(timer);
-      var actions = [{ label: "Try again", style: "btn-primary", onClick: function () { sendDirect(job, lines); } }];
-      if (canShareFile()) actions.push({ label: "Send it another way", style: "btn-outline", onClick: function () { shareFile(job, lines); } });
-      actions.push({ label: "Email it from my phone instead", style: "btn-outline", onClick: function () { emailFallback(job, lines); } });
-      actions.push({ label: "Close", style: "btn-plain", onClick: closeModal });
-      openModal("Didn't send", "<p class=\"warn\">The list didn't go through. You might not have signal right now.</p><p>Your list is saved. Try again in a minute, or send it another way.</p>", actions);
-    });
+    }, function (e) { to.done(); throw e; });
+  }
+
+  // ---------- Sending into the job in Action Project PRO (Firestore, no sign-in) ----------
+  function fsStr(v) { return { stringValue: String(v == null ? "" : v) }; }
+  function randomId() {
+    var a = new Uint8Array(12), out = "";
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < a.length; i++) out += ("0" + a[i].toString(16)).slice(-2);
+    return out;
+  }
+
+  function sendToJob(job, lines) {
+    var api = CONFIG.jobsApi;
+    var base = (api.host || "https://firestore.googleapis.com") + "/v1/projects/" + api.projectId + "/databases/(default)/documents";
+    var docName = "projects/" + api.projectId + "/databases/(default)/documents/toollinks/" + state.link.t + "/lists/" + randomId();
+    var fields = {
+      jobNumber: fsStr(job.jobNumber.trim().slice(0, 60)),
+      jobName: fsStr(job.jobName.trim().slice(0, 120)),
+      jobAddress: fsStr(job.jobAddress.trim().slice(0, 200)),
+      requestedBy: fsStr(job.requestedBy.trim().slice(0, 80)),
+      dateNeeded: fsStr(job.dateNeeded || ""),
+      container: fsStr(job.container || ""),
+      text: fsStr(plainText(job, lines).slice(0, 30000)),
+      lines: { arrayValue: { values: lines.slice(0, 400).map(function (l) {
+        return { mapValue: { fields: {
+          category: fsStr(l.category.slice(0, 80)), tool: fsStr(l.tool.slice(0, 160)),
+          option: fsStr((l.option ? optionText(l) : "").slice(0, 80)),
+          qty: { integerValue: String(l.qty) }, note: fsStr(l.note.slice(0, 300)),
+        } } };
+      }) } },
+    };
+    var to = withTimeout(30000);
+    return fetch(base + ":commit" + (api.apiKey ? "?key=" + encodeURIComponent(api.apiKey) : ""), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ writes: [{
+        update: { name: docName, fields: fields },
+        updateTransforms: [{ fieldPath: "at", setToServerValue: "REQUEST_TIME" }],
+        currentDocument: { exists: false },
+      }] }),
+      signal: to.signal,
+    }).then(function (res) {
+      to.done();
+      if (!res.ok) throw new Error("HTTP " + res.status);
+    }, function (e) { to.done(); throw e; });
   }
 
   function makeFile(job, lines) {
@@ -498,9 +598,10 @@
 
   function clearChecks() {
     state.picks = {};
+    state.link = null;
     state.job.jobNumber = ""; state.job.jobName = ""; state.job.jobAddress = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
     els.jobNumber.value = ""; els.jobName.value = ""; els.jobAddress.value = ""; els.dateNeeded.value = "";
-    save(); render();
+    save(); render(); showLink();
   }
 
   // ---------- Menu ----------

@@ -11,4 +11,7 @@ window.GANGBOX_CONFIG = {
   // Warehouse email address (only used when sendTo is blank). When set, the "Email" option fills it in.
   // You can also add ?to=name@company.com to the link you send the crews.
   warehouseEmail: "",
+  // Action Project PRO: links made from an Awarded job (?t=...) also send the list into that job.
+  // These are public web-app values (the same ones the Action Project PRO page uses).
+  jobsApi: { projectId: "action-project-pro-d38d9", apiKey: "AIzaSyCGvTCBJVSUc-V6655Ukbqjomnv6d_a9t0" },
 };

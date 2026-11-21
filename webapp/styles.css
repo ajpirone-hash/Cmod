@@ -222,3 +222,7 @@ main { max-width: 640px; margin: 0 auto; padding: 12px; }
 .opt-big { flex: 1; min-height: 56px; }
 
 [hidden] { display: none !important; }
+
+/* Linked to a job in Action Project PRO */
+.joblink { font-size: 16px; }
+.field input[readonly] { background: #EEF3FA; color: var(--muted); }
