@@ -26,7 +26,7 @@ The list is saved on their phone, so closing the page doesn't lose anything. Aft
 - **Warehouse email:** put it in `config.js` (`warehouseEmail`), or add it to the link you send, like
   `https://ajpirone-hash.github.io/Cmod/?to=warehouse@yourcompany.com`
 - **Company name** at the top: `company` in `config.js`.
-- **Tool list:** edit `tools.js`. After changing any file, also bump `VERSION` in `sw.js` so phones pick up the change.
+- **Tool list:** edit `tools.js`. After changing any file, bump `VERSION` in `sw.js` and the `?v=` number in `index.html` (and the matching list in `sw.js`) so phones pick up the change.
 
 ## How it's hosted
 

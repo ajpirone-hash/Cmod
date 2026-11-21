@@ -547,7 +547,22 @@
 
   // ---------- Offline support ----------
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+    // Reload once when a newer version takes over, so crews always see the latest list and look.
+    var hadController = !!navigator.serviceWorker.controller, reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(function (reg) {
+        reg.update().catch(function () {});
+        // Check for updates whenever the app is brought back to the screen.
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible") reg.update().catch(function () {});
+        });
+      }).catch(function () {});
+    });
   }
 
   // Drop checks for tools that are no longer on the list (e.g. after a list update).
