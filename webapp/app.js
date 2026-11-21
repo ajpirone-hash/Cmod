@@ -10,7 +10,7 @@
   var state = load();
 
   function load() {
-    var empty = { job: { jobNumber: "", jobName: "", jobAddress: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
+    var empty = { job: { jobNumber: "", jobName: "", jobAddress: "", requestedBy: "", dateNeeded: "", container: "", material: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return empty;
@@ -103,16 +103,24 @@
   var containerOpts = document.getElementById("containerOpts");
   function showContainer() {
     Array.prototype.forEach.call(containerOpts.querySelectorAll(".opt"), function (b) {
-      b.classList.toggle("on", b.getAttribute("data-val") === state.job.container);
+      b.classList.toggle("on", containers().indexOf(b.getAttribute("data-val")) >= 0);
     });
+    $("materialField").hidden = !clamOn();
+    updateCount();
   }
+  function containers() { return state.job.container ? state.job.container.split(" + ") : []; }
+  function clamOn() { return containers().indexOf("Clam shell") >= 0; }
   containerOpts.addEventListener("click", function (e) {
     var b = e.target.closest(".opt");
     if (!b) return;
     var v = b.getAttribute("data-val");
-    state.job.container = state.job.container === v ? "" : v;
+    var list = containers(), i = list.indexOf(v);
+    if (i >= 0) list.splice(i, 1); else list.push(v);
+    state.job.container = ["Gang box", "Clam shell"].filter(function (c) { return list.indexOf(c) >= 0; }).join(" + ");
     save(); showContainer();
   });
+  $("material").value = state.job.material || "";
+  $("material").addEventListener("input", function () { state.job.material = $("material").value; save(); updateCount(); });
   showContainer();
 
   // ---------- Render tool list ----------
@@ -165,9 +173,11 @@
   }
 
   function updateCount() {
-    var n = Object.keys(state.picks).length;
-    els.countText.textContent = n === 0 ? "No tools picked yet" : n === 1 ? "1 tool picked" : n + " tools picked";
-    els.sendBtn.disabled = n === 0;
+    var n = Object.keys(state.picks).length, m = materialLines().length;
+    var t = n === 0 ? (m ? "" : "No tools picked yet") : n === 1 ? "1 tool picked" : n + " tools picked";
+    if (m) t += (t ? ", " : "") + m + " material item" + (m === 1 ? "" : "s");
+    els.countText.textContent = t;
+    els.sendBtn.disabled = n === 0 && m === 0;
   }
 
   els.search.addEventListener("input", render);
@@ -305,11 +315,18 @@
     return Number(m[2]) + "/" + Number(m[3]) + "/" + m[1];
   }
 
+  function materialLines() {
+    if (!clamOn()) return [];
+    return (state.job.material || "").split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+
   function orderLines() {
     return pickedTools().map(function (t) {
       var p = state.picks[t.id];
       return { category: t.category, tool: t.name, option: p.opt || "", optionLabel: t.choose ? t.choose.label : "", needsOption: !!t.choose, qty: p.qty, note: (p.note || "").trim() };
-    });
+    }).concat(materialLines().map(function (m) {
+      return { category: "Clam Shell Material", tool: m, option: "", optionLabel: "", needsOption: false, qty: "", note: "", material: true };
+    }));
   }
 
   function csvCell(v) {
@@ -349,11 +366,12 @@
   }
 
   function lineText(l) {
+    if (l.material) return "Material: " + l.tool;
     return l.qty + " x " + l.tool + (l.option ? ", " + optionText(l) : "") + (l.note ? " (" + l.note + ")" : "");
   }
 
   function plainText(job, lines) {
-    var t = "Gang box tool list (" + lines.length + (lines.length === 1 ? " item" : " items") + ")\n\n";
+    var t = "Gang box list (" + lines.length + (lines.length === 1 ? " item" : " items") + ")\n\n";
     if (job.jobNumber.trim()) t += "Job #: " + job.jobNumber.trim() + "\n";
     if (job.jobName.trim()) t += "Job: " + job.jobName.trim() + "\n";
     if (job.jobAddress.trim()) t += "Address: " + job.jobAddress.trim() + "\n";
@@ -381,6 +399,7 @@
     if (!job.container) warn += '<p class="warn">⚠ Pick gang box or clam shell at the top.</p>';
     if (!job.requestedBy.trim()) warn += '<p class="warn">⚠ Add your name so the warehouse can call you.</p>';
     var list = "<ul>" + lines.map(function (l) {
+      if (l.material) return "<li><b>Material:</b> " + esc(l.tool) + "</li>";
       return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.option ? ", <b>" + esc(optionText(l)) + "</b>" : "") + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
     }).join("") + "</ul>";
     var head = jobLabel(job) ? "<p><b>Job:</b> " + esc(jobLabel(job)) + (job.jobAddress.trim() ? "<br><b>Address:</b> " + esc(job.jobAddress) : "") + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + (job.container ? "<br><b>Send in:</b> " + esc(job.container) : "") + "</p>" : "";
@@ -495,7 +514,7 @@
 
   function clearChecks() {
     state.picks = {};
-    state.job.jobNumber = ""; state.job.jobName = ""; state.job.jobAddress = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
+    state.job.jobNumber = ""; state.job.jobName = ""; state.job.jobAddress = ""; state.job.dateNeeded = ""; state.job.container = ""; state.job.material = ""; $("material").value = ""; showContainer();
     els.jobNumber.value = ""; els.jobName.value = ""; els.jobAddress.value = ""; els.dateNeeded.value = "";
     save(); render();
   }

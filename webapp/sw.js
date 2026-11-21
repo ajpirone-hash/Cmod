@@ -1,7 +1,7 @@
 // Keeps the app working with no signal. Bump VERSION when files change.
-var VERSION = "gangbox-v10";
+var VERSION = "gangbox-v11";
 var FILES = [
-  "./", "index.html", "styles.css?v=10", "app.js?v=10", "tools.js?v=10", "config.js?v=10", "manifest.webmanifest",
+  "./", "index.html", "styles.css?v=11", "app.js?v=11", "tools.js?v=11", "config.js?v=11", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
 ];
 
