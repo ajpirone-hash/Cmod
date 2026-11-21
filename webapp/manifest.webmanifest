@@ -1,13 +1,13 @@
 {
-  "name": "Gang Box List",
+  "name": "Action Gang Box List",
   "short_name": "Gang Box",
   "description": "Check off tools for the gang box and send the list to the warehouse.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#E65100",
+  "background_color": "#F4F8FD",
+  "theme_color": "#0A2647",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
