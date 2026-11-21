@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
   <header class="topbar">
@@ -43,8 +43,16 @@
     <section class="card" aria-labelledby="jobHeading">
       <h2 id="jobHeading"><span class="step">1</span>Job info</h2>
       <label class="field">
-        <span>Job name or address</span>
-        <input id="jobName" type="text" autocomplete="off" autocapitalize="words" placeholder="Example: 123 Main St">
+        <span>Job number</span>
+        <input id="jobNumber" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="Example: 24-118">
+      </label>
+      <label class="field">
+        <span>Job name</span>
+        <input id="jobName" type="text" autocomplete="off" autocapitalize="words" placeholder="Example: Smith Residence">
+      </label>
+      <label class="field">
+        <span>Job address</span>
+        <input id="jobAddress" type="text" autocomplete="off" autocapitalize="words" placeholder="Example: 123 Main St, Madison">
       </label>
       <label class="field">
         <span>Your name</span>
@@ -91,8 +99,8 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script src="config.js?v=9"></script>
-  <script src="tools.js?v=9"></script>
-  <script src="app.js?v=9"></script>
+  <script src="config.js?v=10"></script>
+  <script src="tools.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

@@ -10,7 +10,7 @@
   var state = load();
 
   function load() {
-    var empty = { job: { jobName: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
+    var empty = { job: { jobNumber: "", jobName: "", jobAddress: "", requestedBy: "", dateNeeded: "", container: "" }, picks: {}, custom: [], open: {}, tipDismissed: false, warehouseEmail: "" };
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return empty;
@@ -74,7 +74,7 @@
   // ---------- Elements ----------
   var $ = function (id) { return document.getElementById(id); };
   var els = {
-    title: $("title"), jobName: $("jobName"), requestedBy: $("requestedBy"), dateNeeded: $("dateNeeded"),
+    title: $("title"), jobNumber: $("jobNumber"), jobName: $("jobName"), jobAddress: $("jobAddress"), requestedBy: $("requestedBy"), dateNeeded: $("dateNeeded"),
     search: $("search"), toolList: $("toolList"), addToolBtn: $("addToolBtn"),
     countText: $("countText"), sendBtn: $("sendBtn"), menuBtn: $("menuBtn"),
     modal: $("modal"), modalTitle: $("modalTitle"), modalBody: $("modalBody"), modalActions: $("modalActions"),
@@ -94,7 +94,7 @@
   }
 
   // ---------- Job info ----------
-  ["jobName", "requestedBy", "dateNeeded"].forEach(function (key) {
+  ["jobNumber", "jobName", "jobAddress", "requestedBy", "dateNeeded"].forEach(function (key) {
     els[key].value = state.job[key] || "";
     els[key].addEventListener("input", function () { state.job[key] = els[key].value; save(); });
   });
@@ -320,22 +320,27 @@
   }
 
   function buildCsv(job, lines) {
-    var rows = [["Job", "Requested By", "Date Needed", "Send In", "Category", "Tool", "Size / Length", "Qty", "Notes"]];
+    var rows = [["Job #", "Job Name", "Job Address", "Requested By", "Date Needed", "Send In", "Category", "Tool", "Size / Length", "Qty", "Notes"]];
     lines.forEach(function (l) {
-      rows.push([job.jobName.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), job.container || "", l.category, l.tool, l.option, String(l.qty), l.note]);
+      rows.push([job.jobNumber.trim(), job.jobName.trim(), job.jobAddress.trim(), job.requestedBy.trim(), prettyDate(job.dateNeeded), job.container || "", l.category, l.tool, l.option, String(l.qty), l.note]);
     });
     return "﻿" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n") + "\r\n";
   }
 
   function fileName(job) {
-    var part = job.jobName.trim().replace(/[^A-Za-z0-9-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 40);
+    var part = [job.jobNumber.trim(), job.jobName.trim()].filter(Boolean).join(" ").replace(/[^A-Za-z0-9-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 40);
     var d = new Date();
     var today = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     return "GangBox_" + (part ? part + "_" : "") + today + ".csv";
   }
 
+  function jobLabel(job) {
+    var n = job.jobNumber.trim(), m = job.jobName.trim();
+    return n && m ? "#" + n + " " + m : (n ? "#" + n : m);
+  }
+
   function subjectLine(job) {
-    return (CONFIG.company ? CONFIG.company + " " : "") + "Gang box list - " + (job.jobName.trim() || "No job name") +
+    return (CONFIG.company ? CONFIG.company + " " : "") + "Gang box list - " + (jobLabel(job) || "No job name") +
       (job.dateNeeded ? " (needed " + prettyDate(job.dateNeeded) + ")" : "");
   }
 
@@ -349,7 +354,9 @@
 
   function plainText(job, lines) {
     var t = "Gang box tool list (" + lines.length + (lines.length === 1 ? " item" : " items") + ")\n\n";
+    if (job.jobNumber.trim()) t += "Job #: " + job.jobNumber.trim() + "\n";
     if (job.jobName.trim()) t += "Job: " + job.jobName.trim() + "\n";
+    if (job.jobAddress.trim()) t += "Address: " + job.jobAddress.trim() + "\n";
     if (job.requestedBy.trim()) t += "Requested by: " + job.requestedBy.trim() + "\n";
     if (job.dateNeeded) t += "Needed: " + prettyDate(job.dateNeeded) + "\n";
     if (job.container) t += "Send in: " + job.container + "\n";
@@ -366,7 +373,8 @@
     var job = state.job;
     var lines = orderLines();
     var warn = "";
-    if (!job.jobName.trim()) warn += '<p class="warn">⚠ No job name. The warehouse won\'t know where this goes.</p>';
+    if (!job.jobName.trim() && !job.jobNumber.trim()) warn += '<p class="warn">⚠ No job number or name. The warehouse won\'t know where this goes.</p>';
+    if (!job.jobAddress.trim()) warn += '<p class="warn">⚠ No job address.</p>';
     lines.forEach(function (l) {
       if (l.needsOption && !l.option) warn += '<p class="warn">⚠ ' + esc(l.tool) + ": pick the " + esc(l.optionLabel.toLowerCase()) + ".</p>";
     });
@@ -375,7 +383,7 @@
     var list = "<ul>" + lines.map(function (l) {
       return "<li><b>" + l.qty + " ×</b> " + esc(l.tool) + (l.option ? ", <b>" + esc(optionText(l)) + "</b>" : "") + (l.note ? " <span class='small'>(" + esc(l.note) + ")</span>" : "") + "</li>";
     }).join("") + "</ul>";
-    var head = job.jobName.trim() ? "<p><b>Job:</b> " + esc(job.jobName) + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + (job.container ? "<br><b>Send in:</b> " + esc(job.container) : "") + "</p>" : "";
+    var head = jobLabel(job) ? "<p><b>Job:</b> " + esc(jobLabel(job)) + (job.jobAddress.trim() ? "<br><b>Address:</b> " + esc(job.jobAddress) : "") + (job.dateNeeded ? "<br><b>Needed:</b> " + esc(prettyDate(job.dateNeeded)) : "") + (job.container ? "<br><b>Send in:</b> " + esc(job.container) : "") + "</p>" : "";
 
     var actions = [];
     var note;
@@ -404,7 +412,9 @@
     form.append("_subject", subjectLine(job));
     form.append("_template", "table");
     form.append("_captcha", "false");
+    form.append("Job number", job.jobNumber.trim() || "(not given)");
     form.append("Job", job.jobName.trim() || "(no job name)");
+    form.append("Job address", job.jobAddress.trim() || "(not given)");
     form.append("Requested by", job.requestedBy.trim() || "(no name)");
     form.append("Date needed", prettyDate(job.dateNeeded) || "(not given)");
     form.append("Send in", job.container || "(not picked)");
@@ -485,8 +495,8 @@
 
   function clearChecks() {
     state.picks = {};
-    state.job.jobName = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
-    els.jobName.value = ""; els.dateNeeded.value = "";
+    state.job.jobNumber = ""; state.job.jobName = ""; state.job.jobAddress = ""; state.job.dateNeeded = ""; state.job.container = ""; showContainer();
+    els.jobNumber.value = ""; els.jobName.value = ""; els.jobAddress.value = ""; els.dateNeeded.value = "";
     save(); render();
   }
 
@@ -494,7 +504,7 @@
   els.menuBtn.addEventListener("click", function () {
     openModal("Options", "", [
       { label: "Start a new list (clear all checks)", style: "btn-outline", onClick: function () {
-        confirmBox("Clear all checks?", "This unchecks every tool and clears the job name and date. Your name stays.", "Clear it", clearChecks, true);
+        confirmBox("Clear all checks?", "This unchecks every tool and clears the job number, name, address and date. Your name stays.", "Clear it", clearChecks, true);
       } },
       { label: "How to put this on my home screen", style: "btn-outline", onClick: function () { closeModal(); showInstallTip(true); } },
       { label: "Close", style: "btn-plain", onClick: closeModal },
