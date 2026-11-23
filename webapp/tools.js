@@ -4,18 +4,18 @@
 // to make the crew pick a size or length when they check it.
 window.GANGBOX_TOOLS = [
   {
-    "name": "Power Tools",
+    "name": "Power Tools (Battery Operated)",
     "tools": [
-      "Cordless Drill/Driver",
-      "Cordless Impact Driver",
-      "Hammer Drill",
-      "Rotary Hammer (SDS)",
-      "Right Angle Drill",
-      "Sawzall (Reciprocating Saw)",
-      "Portaband (Band Saw)",
-      "Circular Saw",
-      "Angle Grinder",
-      "Oscillating Multi-Tool",
+      "Battery Drill/Driver",
+      "Battery Impact Driver",
+      "Battery Hammer Drill",
+      "Battery Rotary Hammer (SDS)",
+      "Battery Right Angle Drill",
+      "Battery Sawzall (Reciprocating Saw)",
+      "Battery Portaband (Band Saw)",
+      "Battery Circular Saw",
+      "Battery Angle Grinder",
+      "Battery Oscillating Multi-Tool",
       "Spare Batteries",
       "Battery Chargers"
     ]
