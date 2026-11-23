@@ -7,17 +7,17 @@ package com.gangbox.app.data
 object DefaultTools {
 
     private val byCategory: Map<String, List<String>> = linkedMapOf(
-        "Power Tools" to listOf(
-            "Cordless Drill/Driver",
-            "Cordless Impact Driver",
-            "Hammer Drill",
-            "Rotary Hammer (SDS)",
-            "Right Angle Drill",
-            "Sawzall (Reciprocating Saw)",
-            "Portaband (Band Saw)",
-            "Circular Saw",
-            "Angle Grinder",
-            "Oscillating Multi-Tool",
+        "Power Tools (Battery Operated)" to listOf(
+            "Battery Drill/Driver",
+            "Battery Impact Driver",
+            "Battery Hammer Drill",
+            "Battery Rotary Hammer (SDS)",
+            "Battery Right Angle Drill",
+            "Battery Sawzall (Reciprocating Saw)",
+            "Battery Portaband (Band Saw)",
+            "Battery Circular Saw",
+            "Battery Angle Grinder",
+            "Battery Oscillating Multi-Tool",
             "Spare Batteries",
             "Battery Chargers",
         ),
